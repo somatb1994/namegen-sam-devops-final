@@ -1,45 +1,61 @@
-# random-name-gen-app
-A demonstration project that has an API backend that binds to an instance of a MongoDB database and an HTML front end, all running from the same code base. The behavior of the UI is that it generates and stores a random name according to a series of button clicks.
+![AWS](https://img.shields.io/badge/AWS-EKS-orange)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-purple)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-v1.33-blue)
+![Docker](https://img.shields.io/badge/Docker-24.x-blue)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI/CD-green)
+# EKS Cloud-Native CI/CD Pipeline: Random Name Generator
 
+## Overview
+This repository demonstrates a complete Cloud-Native deployment of the **Random Name Generator and Saver** application on Amazon EKS Auto Mode. 
 
-## Get up and running
+The project features:
+* A fully automated CI/CD pipeline using **GitHub Actions**.
+* Passwordless AWS authentication using **GitHub OIDC**.
+* Infrastructure provisioning with **Terraform**.
+* Container deployment to **Amazon EKS** using Kubernetes manifests.
+* Persistent **MongoDB** storage using StatefulSets and EBS Volumes.
 
-`Step 1:` Get the code:
+## Cloud Architecture
+![Architecture Diagram](architecture-diagram.png)
 
-`git clone https://github.com/reselbob/random-name-gen-app.git`
+## Tech Stack
+* **Cloud Provider:** AWS (EKS, ECR, IAM, NLB, EBS)
+* **Infrastructure as Code:** Terraform
+* **Containerization:** Docker
+* **Container Orchestration:** Kubernetes
+* **CI/CD:** GitHub Actions
+* **Authentication:** GitHub OIDC
+* **Database:** MongoDB 3.6
 
----
+## CI/CD Pipeline Workflow
+* **Push:** A developer pushes changes to the `main` branch.
+* **Authenticate:** GitHub Actions authenticates to AWS using GitHub OIDC.
+* **Build:** Docker builds a new container image.
+* **Push:** The image is tagged and pushed to Amazon ECR.
+* **Deploy:** GitHub Actions deploys the Kubernetes manifests and updates the application.
+* **Verify:** The workflow ensures all Kubernetes resources are healthy.
 
-`Step 2:` Add an entry to `.env`:
+## How to Deploy
+Follow these steps to provision the infrastructure and trigger the deployment:
 
-`MONGODB_URL=<connection_string_url_to_mongodb_server>`
+1. **Provision the Infrastructure:**
+   ```bash
+   cd terraform
+   terraform init
+   terraform apply
+   
+   2. **Trigger the Deployment:**
+    
+   Simply push your code to the `main` branch, and the GitHub Actions pipeline will automatically:
+   * Build the Docker image.
+   * Push the image to Amazon ECR.
+   * Deploy the MongoDB StatefulSet and the application to Amazon EKS.
 
----
+## Verify the Deployment
+After the deployment, update your kubeconfig to interact with the cluster:
 
-`Step 3:` Install the dependencies:
-
-`npm install`
-
----
-
-`Step 4:` Start the server:
-
-`node server.js`
-
-By default, the app runs on port `8080`
-
-To change the port on which the web server is listening, add the following to the `.env` file in the root of the project's working directory:
-
-`SERVER_PORT=<port_number>`
-
-WHERE
-
-`<port_number>` is the number of the port for the web server.
-
----
-
-`Step 5:` Access the front-end web page:
-
-`http://localhost:8080/`
-
-![1 40-05](https://user-images.githubusercontent.com/1110569/192336149-68a1e69d-9689-477d-9047-8e3899b933c3.png)
+```bash
+aws eks update-kubeconfig --region us-east-1 --name my-cluster
+kubectl get all
+```
+If everything completed successfully, your application should now be running inside your Amazon EKS cluster.
