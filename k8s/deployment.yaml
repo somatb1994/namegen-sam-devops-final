@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: namegen-deployment
+  labels:
+    app: namegen
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: namegen
+  template:
+    metadata:
+      labels:
+        app: namegen
+    spec:
+      containers:
+        - name: namegen
+          image: 862012315597.dkr.ecr.us-east-1.amazonaws.com/samapps/app:latest
+          imagePullPolicy: Always
+          env:
+            - name: SERVER_PORT
+              value: "8080"
+            - name: MONGODB_URL
+              value: "mongodb://genuser:password@mongodb/namegen"
+          ports:
+            - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: namegen-service
+  labels:
+    app: namegen
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+spec:
+  type: LoadBalancer
+  selector:
+    app: namegen
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
